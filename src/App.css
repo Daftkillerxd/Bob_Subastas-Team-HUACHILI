@@ -324,4 +324,28 @@ html, body, #root {
 /* Opcional: fondo global claro en vez de crema */
 :root { --bg: #ffffff; }
 body { background: #ffffff !important; }
+/* ✅ 1) Asegura que el scroll esté SOLO dentro del chat */
+html, body, #root {
+  overflow: hidden !important; /* sin scroll global */
+}
+
+/* ✅ 2) Cadena de flex con min-height:0 para permitir overflow del hijo */
+.page, .wrap, .card {
+  min-height: 0 !important;     /* clave para que el hijo pueda scrollear */
+}
+
+.wrap, .card {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  overflow: hidden;              /* opcional: oculta desbordes externos */
+}
+
+/* ✅ 3) El chat ocupa el espacio restante y es el ÚNICO que scrollea */
+.chat-window {
+  flex: 1 1 auto;
+  min-height: 0 !important;     /* importantísimo en el propio contenedor */
+  overflow-y: auto !important;
+  background: #ffffff !important;
+}
 
