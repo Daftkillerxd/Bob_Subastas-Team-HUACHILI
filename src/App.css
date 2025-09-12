@@ -348,4 +348,73 @@ html, body, #root {
   overflow-y: auto !important;
   background: #ffffff !important;
 }
+/* ======== LAYOUT ÚNICO: solo scrollea el chat ======== */
+
+/* 0) Sin scroll del documento y fondo blanco global */
+html, body, #root {
+  height: 100%;
+  min-height: 100vh;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: #ffffff !important;
+  overflow: hidden !important;        /* <- el documento NO scrollea */
+}
+
+/* 1) La página ocupa toda la pantalla y organiza en columna */
+.page {
+  height: 100vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 24px 16px !important;      /* ajusta si quieres */
+  box-sizing: border-box;
+  min-height: 0 !important;           /* <- CLAVE */
+}
+
+/* 2) Encabezado arriba (no scrollea) */
+.hero { 
+  flex: 0 0 auto !important;
+}
+
+/* 3) Wrapper ocupa el resto y también es flex */
+.wrap {
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  max-width: 920px;
+  margin: 0 auto;
+  min-height: 0 !important;           /* <- CLAVE */
+  overflow: hidden;                    /* evita scroll externo */
+}
+
+/* 4) La card llena el espacio disponible */
+.card {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;           /* <- CLAVE */
+}
+
+/* 5) Header de la card y chips NO crecen */
+.card-header { flex: 0 0 auto !important; }
+.chips       { flex: 0 0 auto !important; }
+
+/* 6) El CHAT es el ÚNICO que scrollea */
+.chat-window {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;           /* <- MUY CLAVE en flex */
+  overflow-y: auto !important;        /* <- barra interna */
+  background: #ffffff !important;
+}
+
+/* 7) Composer fijo abajo, sin scroll */
+.composer {
+  flex: 0 0 auto !important;
+  background: #ffffff !important;
+  border-top: 1px solid #f1f5f9 !important;
+}
+
+/* Opcional: en móvil, NO fijes altura del chat */
+@media (max-width: 720px){
+  /* Si tenías .chat-window{ height:420px } bórralo */
+}
 
