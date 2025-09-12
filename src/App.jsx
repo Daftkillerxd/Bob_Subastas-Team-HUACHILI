@@ -36,7 +36,7 @@ export default function App() {
     setLoading(true);
 
     try {
-      const response = await fetch("https://proy2-chatbot-legal-frontend.onrender.com", {
+      const response = await fetch("https://proy2-chatbot-legal.onrender.com", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: text }),
