@@ -114,10 +114,7 @@ export default function App() {
       <div className="wrap">
         <header className="hero">
           <h1>Chatbot Legal Especializado</h1>
-          <p>
-            Obtén respuestas inmediatas sobre herencia, sucesiones y derecho
-            civil en Perú
-          </p>
+          
         </header>
 
         <section className="card">
