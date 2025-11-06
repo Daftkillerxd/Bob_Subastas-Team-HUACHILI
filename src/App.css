@@ -1,420 +1,843 @@
-:root{
-  --bg: #faf5ef;
-  --text: #1e293b;
-  --muted: #6b7280;
-  --card: #ffffff;
-  --ring: 0 0 0 3px rgba(255,153,51,.18);
-
-  --orange-1: #ff8a00;
-  --orange-2: #ff6a00;
-
-  --chip-bg: #f3f4f6;
-  --chip-border: #e5e7eb;
-
-  --bubble-user: #e9f2ff;
-  --bubble-user-border: #cfe1ff;
-
-  --bubble-bot: #eef6ff;
-  --bubble-bot-border: #d5e7ff;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-/* Base */
-*{ box-sizing: border-box; }
-html, body, #root{ height:100%; min-height:100vh; }
-body{
-  margin:0;
-  background: var(--bg);
-  color: var(--text);
-  font: 16px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+:root {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    "Segoe UI", sans-serif;
+  color-scheme: light;
 }
 
-/* ===== Contenedor de página ===== */
-.page{
+body {
+  margin: 0;
+  background: #f3f4f6;
+}
+
+.app {
+  min-height: 100vh;
+  background: #f3f4f6;
+}
+
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar */
+
+.sidebar {
+  width: 240px;
+  background: #111827;
+  color: #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 16px;
+}
+
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px 16px;
+  margin-bottom: 8px;
+}
+
+.sidebar-logo-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: #1f2937;
+}
+
+.sidebar-logo-text {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid rgba(156, 163, 175, 0.4);
+}
+
+.nav-item {
   width: 100%;
-  padding: 32px 16px 56px;
-  display: block;
-}
-
-/* ===== Wrapper CENTRADO ===== */
-.wrap{
-  width: 100%;
-  max-width: 920px;      /* controla el ancho del bloque */
-  margin: 0 auto;        /* centra todo el contenido */
-}
-
-/* Header */
-.hero{ text-align: center; }
-.hero h1{ margin:0 0 4px; font-size:38px; letter-spacing:.3px; }
-.hero p{ margin:0; color:var(--muted); font-size:16px; }
-
-/* Card/chat */
-.card{
-  background: var(--card);
-  border-radius: 12px;
-  box-shadow: 0 12px 26px rgba(16, 24, 40, 0.08);
-  border: 1px solid #f0f0f0;
-}
-
-.card-header{
-  background: linear-gradient(90deg, var(--orange-1), var(--orange-2));
-  color: white;
-  border-radius: 12px 12px 0 0;
-  padding: 16px 18px;
-}
-.card-title{ display:flex; align-items:center; gap:12px; }
-.icon-badge{
-  width:28px; height:28px; display:grid; place-items:center;
-  background: rgba(255,255,255,.18);
-  border:1px solid rgba(255,255,255,.35);
-  border-radius:8px;
-}
-.card-title h2{ margin:0; font-size:18px; font-weight:700; }
-.card-title span{ display:block; font-size:13px; opacity:.95; margin-top:2px; }
-
-/* Chips */
-.chips{
-  display:flex; gap:10px; flex-wrap:wrap;
-  padding:14px 18px 4px; background:#fff7f1; border-bottom:1px solid #ffe2cc;
-}
-.chip{
-  background: var(--chip-bg); border:1px solid var(--chip-border);
-  color:#374151; padding:8px 12px; border-radius:999px; cursor:pointer;
-  font-size:14px; transition: box-shadow .15s ease, transform .05s ease, background .15s ease;
-}
-.chip:hover{ background:#eef2f7; }
-.chip:active{ transform: translateY(1px); }
-
-/* Conversación */
-.chat-window{
-  overflow-y: auto;
-  padding: 16px 18px;
-  background: #fffaf5;
-}
-
-.msg-row{
-  display: grid;
-  grid-template-columns: 36px 1fr 36px;
-  gap: 10px; align-items: end;
-  margin: 10px 0;
-}
-.msg-row.left{ grid-template-columns: 36px 1fr auto; }
-.msg-row.right{ grid-template-columns: auto 1fr 36px; }
-
-.avatar{
-  width: 32px; height: 32px;
-  display: grid; place-items: center;
-  background: #fff; border: 1px solid #e5e7eb;
-  border-radius: 50%;
-  box-shadow: 0 1px 0 rgba(0,0,0,.03);
-}
-
-.bubble{
-  max-width: 80%;
-  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
   border-radius: 10px;
-  border: 1px solid transparent;
-  background: #fff;
-  box-shadow: 0 1px 0 rgba(0,0,0,.02);
-  word-wrap: break-word; white-space: pre-wrap;
+  cursor: pointer;
+  font-size: 14px;
+  text-align: left;
+  transition: background 0.15s ease, color 0.15s ease;
 }
-.bubble.user{ background: var(--bubble-user); border-color: var(--bubble-user-border); }
-.bubble.bot { background: var(--bubble-bot);  border-color: var(--bubble-bot-border); }
-.bubble-text{ font-size: 15px; }
-.bubble-time{ margin-top: 6px; font-size: 12px; color: #6b7280; }
 
-/* Typing */
-.typing{ display:inline-flex; gap:6px; align-items:center; }
-.typing .dot{
-  width:6px; height:6px; border-radius:999px; background:#9aa3b2;
-  animation: blink 1.1s infinite ease-in-out;
+.nav-item:hover {
+  background: #1f2937;
 }
-.typing .dot:nth-child(2){ animation-delay:.15s; }
-.typing .dot:nth-child(3){ animation-delay:.3s; }
-@keyframes blink{ 0%,80%{opacity:.35; transform:translateY(0)} 40%{opacity:1; transform:translateY(-2px)} }
 
-/* Composer */
-.composer{
-  display:grid; grid-template-columns:1fr auto; gap:10px;
-  padding:14px 18px 18px; background:#fffaf5;
-  border-radius:0 0 12px 12px; border-top:1px solid #ffe2cc;
+.nav-item.active {
+  background: #374151;
+  color: #ffffff;
 }
-.composer input{
-  width:100%; border:1px solid #e5e7eb; border-radius:10px;
-  padding:12px 14px; font:inherit; outline:none;
-  transition: box-shadow .15s ease, border-color .15s ease;
+
+.nav-icon {
+  font-size: 16px;
 }
-.composer input:focus{ border-color:#ffb470; box-shadow: var(--ring); }
-.send{
-  border:none; color:#fff;
-  background: linear-gradient(90deg, var(--orange-1), var(--orange-2));
-  padding:0 14px; border-radius:10px;
-  display:inline-flex; align-items:center; justify-content:center;
-  min-width:44px; cursor:pointer; box-shadow:0 10px 20px rgba(255,122,0,.18);
-  transition: transform .05s ease, filter .2s ease;
+
+/* Main */
+
+.main {
+  flex: 1;
+  padding: 24px 28px;
+  display: flex;
+  gap: 24px;
 }
-.send:disabled{ opacity:.6; cursor:not-allowed; filter:grayscale(.1); }
-.send:active{ transform: translateY(1px); }
+
+/* Leads panel */
+
+.leads-panel {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.leads-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.leads-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.leads-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  border-radius: 999px;
+  padding: 6px 12px;
+  border: 1px solid #e5e7eb;
+}
+
+.search-icon {
+  font-size: 14px;
+  color: #9ca3af;
+}
+
+.search-input {
+  border: none;
+  outline: none;
+  font-size: 14px;
+  background: transparent;
+  min-width: 220px;
+}
+
+.btn-primary {
+  border: none;
+  background: #111827;
+  color: #ffffff;
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.btn-primary:hover {
+  background: #0b1120;
+}
+
+/* Resumen por interés */
+
+.summary-row {
+  display: flex;
+  gap: 10px;
+}
+
+.summary-card {
+  flex: 1;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.summary-label {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.summary-value {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.summary-high {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+}
+
+.summary-medium {
+  border-color: #fef3c7;
+  background: #fffbeb;
+}
+
+.summary-low {
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+
+/* Filtros */
+
+.filters-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.chip-filter-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.chip-filter {
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  padding: 4px 10px;
+  background: #ffffff;
+  cursor: pointer;
+  font-size: 12px;
+  color: #4b5563;
+}
+
+.chip-filter.active {
+  background: #111827;
+  color: #ffffff;
+  border-color: #111827;
+}
+
+.filter-button {
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  padding: 6px 12px;
+  background: #ffffff;
+  cursor: pointer;
+  font-size: 13px;
+  color: #4b5563;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.filter-button:hover {
+  background: #f9fafb;
+}
+
+/* Tabla */
+
+.leads-table-wrapper {
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+
+.leads-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.leads-table thead {
+  background: #f9fafb;
+}
+
+.leads-table th,
+.leads-table td {
+  padding: 10px 16px;
+}
+
+.leads-table th {
+  text-align: left;
+  font-weight: 500;
+  color: #6b7280;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.lead-row {
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.lead-row:nth-child(even) {
+  background: #fcfcfc;
+}
+
+.lead-row:hover {
+  background: #f3f4f6;
+}
+
+.lead-row.selected {
+  background: #e5f0ff;
+}
+
+.lead-name {
+  font-weight: 500;
+  color: #111827;
+}
+
+.lead-time {
+  color: #6b7280;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 16px;
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+/* Badges */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.badge-high {
+  background: #d1fae5;
+  color: #047857;
+}
+
+.badge-medium {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.badge-low {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* Lead detail */
+
+.lead-detail {
+  flex: 1;
+  min-width: 280px;
+}
+
+.lead-detail-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: #6b7280;
+  margin-bottom: 10px;
+}
+
+.lead-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px 18px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+  border: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.lead-card-header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.lead-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: #374151;
+}
+
+.lead-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lead-card-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lead-card-name {
+  font-weight: 600;
+  color: #111827;
+}
+
+.lead-card-phone {
+  font-size: 13px;
+  color: #4b5563;
+}
+
+.lead-card-time {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.lead-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lead-card-icons {
+  display: flex;
+  gap: 10px;
+  font-size: 18px;
+  color: #6b7280;
+}
+
+.message-bubble {
+  background: #f3f4ff;
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-size: 14px;
+  color: #111827;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tag-pill {
+  align-self: flex-start;
+  border-radius: 999px;
+  border: none;
+  padding: 4px 10px;
+  font-size: 12px;
+  background: #dbeafe;
+  color: #1d4ed8;
+  cursor: default;
+}
+
+.lead-meta {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.btn-outline {
+  margin-top: 4px;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  padding: 8px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #111827;
+  transition: background 0.15s ease;
+}
+
+.btn-outline:hover {
+  background: #f9fafb;
+}
+
+.lead-empty {
+  font-size: 13px;
+  color: #9ca3af;
+}
 
 /* Responsive */
-@media (max-width: 720px){
-  .page{ padding: 20px 12px 40px; }
-  .wrap{ max-width: 100%; }
-  .chat-window{ height: 420px; }
-  .bubble{ max-width: 92%; }
+
+@media (max-width: 980px) {
+  .layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    padding: 10px 16px;
+  }
+
+  .sidebar-nav {
+    flex-direction: row;
+    margin-left: auto;
+  }
+
+  .sidebar-footer {
+    display: none;
+  }
+
+  .main {
+    flex-direction: column;
+  }
 }
 
-/* Centrado real para flex en el <body> y el #root */
-html, body, #root {
-  margin: 0 !important;
-  padding: 0 !important;
-  width: 100% !important;
-  min-height: 100vh !important;
-}
+/* ... (todo tu CSS anterior) ... */
 
-body {
-  display: flex !important;
-  justify-content: center !important; /* ← centra en horizontal */
-  align-items: flex-start !important; /* o center si quieres centro vertical */
-}
+/* Conversaciones */
 
-/* Haz que el contenido principal tenga un ancho máximo y fluya en móvil */
-#root > * {
-  width: min(920px, 100%) !important;  /* 920px máx, 100% en móvil */
-  box-sizing: border-box;
-  margin: 0 16px; /* pequeño margen lateral para que no pegue al borde en móvil */
-}
-/* --- Overrides para centrar sin tocar index.css --- */
-html, body, #root {
-  width: 100%;
-  min-height: 100vh;
-}
-
-body {
-  /* el body ya es flex por index.css; solo centramos el eje principal */
-  justify-content: center !important;   /* ← centra horizontalmente */
-  align-items: flex-start !important;   /* o 'center' si lo quieres al medio vertical */
-}
-
-/* tu bloque principal: ancho controlado y centrado dentro del body */
-.page {
-  width: min(920px, 100%) !important;
-  margin-inline: auto !important;
-  box-sizing: border-box;
-  padding: 32px 16px 56px; /* simétrico */
-}
-
-/* === Look blanco como el mockup === */
-
-/* Chips debajo del header */
-.chips{
-  background: #ffffff !important;
-  border-bottom: 1px solid #f1f5f9 !important; /* línea muy suave */
-}
-
-/* Zona scrolleable del chat */
-.chat-window{
-  background: #ffffff !important;
-}
-
-/* Zona del input */
-.composer{
-  background: #ffffff !important;
-  border-top: 1px solid #f1f5f9 !important;
-}
-
-/* Input blanco (por si el color-scheme oscuro del index.css lo oscurece) */
-.composer input{
-  background: #ffffff !important;
-  color: #1e293b !important;           /* texto gris-azul legible */
-  border-color: #e5e7eb !important;
-}
-
-/* (Opcional) Burbujas y bordes un poco más suaves si quieres */
-.bubble.bot  { background:#f8fbff; border-color:#e7f0ff; }
-.bubble.user { background:#eef5ff; border-color:#dbe8ff; }
-
-/* ===== Alinear burbujas del usuario a la DERECHA ===== */
-
-/* Estructura de columnas:
-   - izquierda: avatar / burbuja / espacio
-   - derecha : espacio / burbuja / avatar  */
-.msg-row {
+.conversations-panel {
+  flex: 1;
   display: grid;
-  grid-template-columns: 36px 1fr 36px;
-  gap: 10px;
-  align-items: end;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 24px;
 }
 
-/* Burbujas del bot a la izquierda */
-.msg-row.left { 
-  grid-template-columns: 36px auto 1fr;   /* avatar | burbuja | espacio */
-}
-.msg-row.left .bubble {
-  justify-self: start;                    /* burbuja pegada a la izquierda */
-}
-
-/* Burbujas del usuario a la derecha */
-.msg-row.right {
-  grid-template-columns: 1fr auto 36px;   /* espacio | burbuja | avatar  */
-}
-.msg-row.right .bubble {
-  justify-self: end;                      /* burbuja pegada a la derecha */
-}
-
-/* Opcional: hora alineada a la derecha en los mensajes del user */
-.msg-row.right .bubble-time {
-  text-align: right;
-}
-
-/* ===== Layout a pantalla completa y fondo blanco en todo ===== */
-html, body, #root {
-  height: 100%;
-  min-height: 100vh;
-  margin: 0 !important;
-  padding: 0 !important;
-  background: #ffffff !important;   /* quita la “parte negra” */
-  overflow: hidden !important;      /* sin scroll del documento */
-}
-
-/* La página ocupa toda la altura y organiza en columnas */
-.page {
-  height: 100vh !important;
+.conversations-list-section {
   display: flex;
   flex-direction: column;
-  background: #ffffff;              /* blanco real */
-  padding: 24px 16px 24px;          /* puedes ajustar */
+  gap: 12px;
 }
 
-/* El wrapper y la card también usan flex-column */
-.wrap {
-  flex: 1;                          /* ocupa alto disponible */
+.conversations-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.conversation-list {
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+  border: 1px solid #e5e7eb;
+  padding: 8px;
   display: flex;
   flex-direction: column;
-  max-width: 920px;
-  margin: 0 auto;
-}
-
-.card {
-  display: flex;
-  flex-direction: column;
-  flex: 1;                          /* que la card crezca */
-}
-
-/* El encabezado de la card mide su contenido */
-.card-header { flex: 0 0 auto; }
-
-/* El área de chips no empuja altura innecesaria */
-.chips { flex: 0 0 auto; }
-
-/* El chat ocupa TODO el espacio que queda y es el ÚNICO que scrollea */
-.chat-window {
-  flex: 1 1 auto;
-  min-height: 0;                    /* clave para que flex permita scroll interno */
+  gap: 4px;
+  max-height: calc(100vh - 200px);
   overflow-y: auto;
-  background: #ffffff !important;
 }
 
-/* El composer abajo, sin scrollear la página */
-.composer {
-  flex: 0 0 auto;
-  background: #ffffff !important;
-  border-top: 1px solid #f1f5f9 !important;
+.conversation-row {
+  border: none;
+  background: transparent;
+  border-radius: 10px;
+  padding: 8px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  cursor: pointer;
+  text-align: left;
 }
 
-/* Opcional: fondo global claro en vez de crema */
-:root { --bg: #ffffff; }
-body { background: #ffffff !important; }
-/* ✅ 1) Asegura que el scroll esté SOLO dentro del chat */
-html, body, #root {
-  overflow: hidden !important; /* sin scroll global */
+.conversation-row:hover {
+  background: #f3f4f6;
 }
 
-/* ✅ 2) Cadena de flex con min-height:0 para permitir overflow del hijo */
-.page, .wrap, .card {
-  min-height: 0 !important;     /* clave para que el hijo pueda scrollear */
+.conversation-row.selected {
+  background: #e5f0ff;
 }
 
-.wrap, .card {
+.conversation-main {
+  flex: 1;
+}
+
+.conversation-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.conversation-lead-name {
+  font-weight: 500;
+  color: #111827;
+}
+
+.conversation-preview {
+  margin: 0;
+  font-size: 13px;
+  color: #4b5563;
+}
+
+.conversation-meta {
   display: flex;
   flex-direction: column;
-  flex: 1 1 auto;
-  overflow: hidden;              /* opcional: oculta desbordes externos */
+  align-items: flex-end;
+  gap: 4px;
 }
 
-/* ✅ 3) El chat ocupa el espacio restante y es el ÚNICO que scrollea */
-.chat-window {
-  flex: 1 1 auto;
-  min-height: 0 !important;     /* importantísimo en el propio contenedor */
-  overflow-y: auto !important;
-  background: #ffffff !important;
+.conversation-time {
+  font-size: 12px;
+  color: #9ca3af;
 }
-/* ======== LAYOUT ÚNICO: solo scrollea el chat ======== */
 
-/* 0) Sin scroll del documento y fondo blanco global */
-html, body, #root {
+.conversation-unread {
+  min-width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: #111827;
+  color: #ffffff;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.conversation-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.conversation-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px 18px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+  border: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.conversation-status-pill {
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 11px;
+  border: 1px solid #e5e7eb;
+  color: #4b5563;
+}
+
+.conversation-messages {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 10px;
+  max-height: 320px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.chat-message {
+  display: flex;
+}
+
+.chat-message.from-client {
+  justify-content: flex-start;
+}
+
+.chat-message.from-bot,
+.chat-message.from-agent {
+  justify-content: flex-end;
+}
+
+.chat-bubble {
+  max-width: 75%;
+  border-radius: 12px;
+  padding: 8px 10px;
+  font-size: 13px;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.chat-message.from-client .chat-bubble {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+}
+
+.chat-message.from-bot .chat-bubble,
+.chat-message.from-agent .chat-bubble {
+  background: #dbeafe;
+  border: 1px solid #bfdbfe;
+}
+
+.chat-time {
+  font-size: 11px;
+  color: #6b7280;
+  align-self: flex-end;
+}
+
+.full-width {
+  width: 100%;
+}
+
+/* Ajuste responsive para grid de conversaciones */
+@media (max-width: 980px) {
+  .conversations-panel {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* DASHBOARD */
+
+.dashboard-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.dashboard-filters {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.date-filter-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.date-filter-button {
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  padding: 4px 10px;
+  background: #ffffff;
+  cursor: pointer;
+  font-size: 12px;
+  color: #4b5563;
+}
+
+.date-filter-button.active {
+  background: #111827;
+  color: #ffffff;
+  border-color: #111827;
+}
+
+/* Evolutivo */
+
+.evolutive-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px 18px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.evolutive-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.evolutive-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.evolutive-subtitle {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.evolutive-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.evolutive-bar-row {
+  display: grid;
+  grid-template-columns: 70px 1fr 32px;
+  gap: 8px;
+  align-items: center;
+  font-size: 13px;
+}
+
+.evolutive-label {
+  color: #4b5563;
+}
+
+.evolutive-bar-track {
+  background: #f3f4f6;
+  border-radius: 999px;
+  height: 10px;
+  overflow: hidden;
+}
+
+.evolutive-bar-fill {
   height: 100%;
-  min-height: 100vh;
-  margin: 0 !important;
-  padding: 0 !important;
-  background: #ffffff !important;
-  overflow: hidden !important;        /* <- el documento NO scrollea */
+  border-radius: 999px;
 }
 
-/* 1) La página ocupa toda la pantalla y organiza en columna */
-.page {
-  height: 100vh !important;
-  display: flex !important;
-  flex-direction: column !important;
-  padding: 24px 16px !important;      /* ajusta si quieres */
-  box-sizing: border-box;
-  min-height: 0 !important;           /* <- CLAVE */
+.evolutive-value {
+  text-align: right;
+  color: #111827;
+  font-weight: 500;
 }
 
-/* 2) Encabezado arriba (no scrollea) */
-.hero { 
-  flex: 0 0 auto !important;
+.evolutive-bar-fill.bar-high {
+  background: #22c55e;
 }
 
-/* 3) Wrapper ocupa el resto y también es flex */
-.wrap {
-  flex: 1 1 auto !important;
-  display: flex !important;
-  flex-direction: column !important;
-  max-width: 920px;
-  margin: 0 auto;
-  min-height: 0 !important;           /* <- CLAVE */
-  overflow: hidden;                    /* evita scroll externo */
+.evolutive-bar-fill.bar-medium {
+  background: #facc15;
 }
 
-/* 4) La card llena el espacio disponible */
-.card {
-  display: flex !important;
-  flex-direction: column !important;
-  flex: 1 1 auto !important;
-  min-height: 0 !important;           /* <- CLAVE */
+.evolutive-bar-fill.bar-low {
+  background: #f97373;
 }
 
-/* 5) Header de la card y chips NO crecen */
-.card-header { flex: 0 0 auto !important; }
-.chips       { flex: 0 0 auto !important; }
+/* responsive extra para dashboard/conversaciones */
 
-/* 6) El CHAT es el ÚNICO que scrollea */
-.chat-window {
-  flex: 1 1 auto !important;
-  min-height: 0 !important;           /* <- MUY CLAVE en flex */
-  overflow-y: auto !important;        /* <- barra interna */
-  background: #ffffff !important;
-}
-
-/* 7) Composer fijo abajo, sin scroll */
-.composer {
-  flex: 0 0 auto !important;
-  background: #ffffff !important;
-  border-top: 1px solid #f1f5f9 !important;
-}
-
-/* Opcional: en móvil, NO fijes altura del chat */
-@media (max-width: 720px){
-  /* Si tenías .chat-window{ height:420px } bórralo */
+@media (max-width: 980px) {
+  .dashboard-filters {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 
