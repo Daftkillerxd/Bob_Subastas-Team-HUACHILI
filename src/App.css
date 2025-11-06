@@ -841,3 +841,274 @@ body {
   }
 }
 
+/* Dashboard */
+
+.dashboard-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.dashboard-title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dashboard-subtitle {
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+.dashboard-filters {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.date-filter-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.date-filter-button {
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  padding: 4px 10px;
+  background: #ffffff;
+  cursor: pointer;
+  font-size: 12px;
+  color: #4b5563;
+}
+
+.date-filter-button.active {
+  background: #111827;
+  color: #ffffff;
+  border-color: #111827;
+}
+
+/* KPIs */
+
+.dashboard-kpi-row {
+  display: grid;
+  grid-template-columns: 2fr 2fr 1.5fr;
+  gap: 12px;
+}
+
+.kpi-main {
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi-main::after {
+  content: "";
+  position: absolute;
+  right: -30px;
+  top: -30px;
+  width: 120px;
+  height: 120px;
+  border-radius: 999px;
+  background: radial-gradient(circle at center, #4f46e5 0, transparent 60%);
+  opacity: 0.2;
+}
+
+.kpi-highlight {
+  background: #ecfdf3;
+  border-color: #bbf7d0;
+}
+
+.kpi-secondary {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.kpi-main-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.kpi-chip {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #111827;
+  color: #ffffff;
+}
+
+.kpi-percentage {
+  font-size: 13px;
+  font-weight: 500;
+  color: #16a34a;
+}
+
+.kpi-helper {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+/* Grilla de gráficos */
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 2fr 1.4fr;
+  gap: 16px;
+}
+
+/* Evolutivo por interés */
+
+.evolutive-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px 18px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.evolutive-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.evolutive-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.evolutive-subtitle {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.evolutive-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.evolutive-bar-row {
+  display: grid;
+  grid-template-columns: 70px 1fr 32px;
+  gap: 8px;
+  align-items: center;
+  font-size: 13px;
+}
+
+.evolutive-label {
+  color: #4b5563;
+}
+
+.evolutive-bar-track {
+  background: #f3f4f6;
+  border-radius: 999px;
+  height: 10px;
+  overflow: hidden;
+}
+
+.evolutive-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.25s ease;
+}
+
+.evolutive-value {
+  text-align: right;
+  color: #111827;
+  font-weight: 500;
+}
+
+.evolutive-bar-fill.bar-high {
+  background: linear-gradient(90deg, #22c55e, #16a34a);
+}
+
+.evolutive-bar-fill.bar-medium {
+  background: linear-gradient(90deg, #facc15, #eab308);
+}
+
+.evolutive-bar-fill.bar-low {
+  background: linear-gradient(90deg, #f97373, #ef4444);
+}
+
+/* Timeline */
+
+.timeline-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px 18px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.timeline-bars {
+  display: flex;
+  gap: 16px;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.timeline-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.timeline-bar-track {
+  width: 100%;
+  height: 110px;
+  border-radius: 999px;
+  background: #f3f4f6;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.timeline-bar-fill {
+  width: 100%;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #4f46e5, #38bdf8);
+  transition: height 0.25s ease;
+}
+
+.timeline-label {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.timeline-value {
+  font-size: 13px;
+  font-weight: 500;
+  color: #111827;
+}
+
+/* Responsive dashboard */
+
+@media (max-width: 980px) {
+  .dashboard-filters {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .dashboard-kpi-row {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}

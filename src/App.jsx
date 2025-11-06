@@ -88,7 +88,6 @@ const leadsData = [
   },
 ];
 
-// mock de conversaciones ligado a leads
 const conversationsData = [
   {
     id: "c1",
@@ -185,7 +184,7 @@ function getInterestClass(interest) {
 const INTEREST_ORDER = { Alto: 0, Medio: 1, Bajo: 2 };
 
 export default function App() {
-  const [activeSection, setActiveSection] = useState("dashboard"); // dashboard | conversaciones | leads
+  const [activeSection, setActiveSection] = useState("leads"); // leads | conversaciones | dashboard
 
   // Leads panel
   const [selectedLead, setSelectedLead] = useState(leadsData[0]);
@@ -232,7 +231,7 @@ export default function App() {
       );
   }, [search, interestFilter]);
 
-  // leads filtrados para Dashboard (por interés + rango de días)
+  // leads filtrados para Dashboard
   const dashboardLeads = useMemo(() => {
     return leadsData.filter((lead) => {
       const byInterest =
@@ -263,6 +262,46 @@ export default function App() {
       dashboardSummary.bajo
     ) || 1;
 
+  const highRatio =
+    dashboardSummary.total === 0
+      ? 0
+      : Math.round(
+          (dashboardSummary.alto / dashboardSummary.total) * 100
+        );
+
+  // buckets de tiempo para timeline
+  const timelineBuckets = useMemo(() => {
+    const buckets = {
+      "0-7": 0,
+      "8-14": 0,
+      "15-30": 0,
+      "31+": 0,
+    };
+
+    leadsData.forEach((lead) => {
+      if (
+        dashboardInterestFilter !== "Todos" &&
+        lead.interest !== dashboardInterestFilter
+      ) {
+        return;
+      }
+
+      if (lead.daysAgo <= 7) buckets["0-7"]++;
+      else if (lead.daysAgo <= 14) buckets["8-14"]++;
+      else if (lead.daysAgo <= 30) buckets["15-30"]++;
+      else buckets["31+"]++;
+    });
+
+    return buckets;
+  }, [dashboardInterestFilter]);
+
+  const maxBucket = Math.max(
+    timelineBuckets["0-7"],
+    timelineBuckets["8-14"],
+    timelineBuckets["15-30"],
+    timelineBuckets["31+"]
+  );
+
   // conversaciones filtradas
   const filteredConversations = useMemo(() => {
     return conversationsData.filter((conv) => {
@@ -282,6 +321,7 @@ export default function App() {
   let mainContent = null;
 
   if (activeSection === "conversaciones") {
+    // INBOX DE CONVERSACIONES
     mainContent = (
       <div className="conversations-panel">
         <section className="conversations-list-section">
@@ -425,8 +465,196 @@ export default function App() {
         </section>
       </div>
     );
-  } else if (activeSection === "leads") {
-    // Panel de leads (lista + visor)
+  } else if (activeSection === "dashboard") {
+    // DASHBOARD TOP
+    mainContent = (
+      <section className="dashboard-panel">
+        <div className="leads-header">
+          <div className="dashboard-title-block">
+            <h1 className="leads-title">Dashboard</h1>
+            <span className="dashboard-subtitle">
+              Visión general del rendimiento de tus leads
+            </span>
+          </div>
+          <div className="leads-header-right">
+            <button className="btn-primary">Exportar reporte</button>
+          </div>
+        </div>
+
+        {/* Filtros dashboard */}
+        <div className="dashboard-filters">
+          <div className="chip-filter-group">
+            {["Todos", "Alto", "Medio", "Bajo"].map((lvl) => (
+              <button
+                key={lvl}
+                className={
+                  "chip-filter" +
+                  (dashboardInterestFilter === lvl ? " active" : "")
+                }
+                onClick={() => setDashboardInterestFilter(lvl)}
+              >
+                {lvl}
+              </button>
+            ))}
+          </div>
+
+          <div className="date-filter-group">
+            {["7", "30", "90", "Todos"].map((range) => (
+              <button
+                key={range}
+                className={
+                  "date-filter-button" +
+                  (dashboardRange === range ? " active" : "")
+                }
+                onClick={() => setDashboardRange(range)}
+              >
+                {range === "Todos" ? "Todo el tiempo" : `Últimos ${range} días`}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* KPIs */}
+        <div className="dashboard-kpi-row">
+          <div className="summary-card kpi-main">
+            <span className="summary-label">Leads en periodo</span>
+            <div className="kpi-main-row">
+              <span className="summary-value">
+                {dashboardSummary.total}
+              </span>
+              <span className="kpi-chip">
+                {dashboardInterestFilter === "Todos"
+                  ? "Todos los niveles"
+                  : `Solo ${dashboardInterestFilter}`}
+              </span>
+            </div>
+            <span className="kpi-helper">
+              Filtrado por rango de fechas e interés
+            </span>
+          </div>
+
+          <div className="summary-card kpi-highlight">
+            <span className="summary-label">Leads de interés alto</span>
+            <div className="kpi-main-row">
+              <span className="summary-value">
+                {dashboardSummary.alto}
+              </span>
+              <span className="kpi-percentage">
+                {highRatio}% del periodo
+              </span>
+            </div>
+            <span className="kpi-helper">
+              Ideal para priorizar al equipo comercial
+            </span>
+          </div>
+
+          <div className="summary-card kpi-secondary">
+            <span className="summary-label">Leads de seguimiento</span>
+            <span className="summary-value">
+              {dashboardSummary.medio + dashboardSummary.bajo}
+            </span>
+            <span className="kpi-helper">
+              Leads que requieren nurturing o recordatorios
+            </span>
+          </div>
+        </div>
+
+        {/* Gráficos: barras por interés + timeline */}
+        <div className="dashboard-grid">
+          <div className="evolutive-card">
+            <div className="evolutive-header">
+              <h3 className="evolutive-title">
+                Distribución de leads por interés
+              </h3>
+              <span className="evolutive-subtitle">
+                Basado en los filtros seleccionados
+              </span>
+            </div>
+
+            <div className="evolutive-bars">
+              {[
+                {
+                  label: "Alto",
+                  value: dashboardSummary.alto,
+                  className: "bar-high",
+                },
+                {
+                  label: "Medio",
+                  value: dashboardSummary.medio,
+                  className: "bar-medium",
+                },
+                {
+                  label: "Bajo",
+                  value: dashboardSummary.bajo,
+                  className: "bar-low",
+                },
+              ].map((item) => (
+                <div key={item.label} className="evolutive-bar-row">
+                  <span className="evolutive-label">
+                    {item.label}
+                  </span>
+                  <div className="evolutive-bar-track">
+                    <div
+                      className={
+                        "evolutive-bar-fill " + item.className
+                      }
+                      style={{
+                        width: `${(item.value / maxCount) * 100}%`,
+                      }}
+                    />
+                  </div>
+                  <span className="evolutive-value">
+                    {item.value}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="timeline-card">
+            <div className="evolutive-header">
+              <h3 className="evolutive-title">
+                Antigüedad de los leads
+              </h3>
+              <span className="evolutive-subtitle">
+                Según días desde el último mensaje
+              </span>
+            </div>
+
+            <div className="timeline-bars">
+              {[
+                { key: "0-7", label: "0 - 7d" },
+                { key: "8-14", label: "8 - 14d" },
+                { key: "15-30", label: "15 - 30d" },
+                { key: "31+", label: "31+d" },
+              ].map((bucket) => (
+                <div key={bucket.key} className="timeline-col">
+                  <div className="timeline-bar-track">
+                    <div
+                      className="timeline-bar-fill"
+                      style={{
+                        height:
+                          maxBucket === 0
+                            ? 0
+                            : `${(timelineBuckets[bucket.key] / maxBucket) * 100}%`,
+                      }}
+                    />
+                  </div>
+                  <span className="timeline-label">
+                    {bucket.label}
+                  </span>
+                  <span className="timeline-value">
+                    {timelineBuckets[bucket.key]}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  } else {
+    // PANEL DE LEADS (por defecto)
     mainContent = (
       <>
         <section className="leads-panel">
@@ -585,130 +813,6 @@ export default function App() {
         </section>
       </>
     );
-  } else {
-    // DASHBOARD
-    mainContent = (
-      <section className="dashboard-panel">
-        <div className="leads-header">
-          <h1 className="leads-title">Dashboard</h1>
-          <div className="leads-header-right">
-            <button className="btn-primary">Exportar reporte</button>
-          </div>
-        </div>
-
-        {/* Filtros dashboard */}
-        <div className="dashboard-filters">
-          <div className="chip-filter-group">
-            {["Todos", "Alto", "Medio", "Bajo"].map((lvl) => (
-              <button
-                key={lvl}
-                className={
-                  "chip-filter" +
-                  (dashboardInterestFilter === lvl ? " active" : "")
-                }
-                onClick={() => setDashboardInterestFilter(lvl)}
-              >
-                {lvl}
-              </button>
-            ))}
-          </div>
-
-          <div className="date-filter-group">
-            {["7", "30", "90", "Todos"].map((range) => (
-              <button
-                key={range}
-                className={
-                  "date-filter-button" +
-                  (dashboardRange === range ? " active" : "")
-                }
-                onClick={() => setDashboardRange(range)}
-              >
-                {range === "Todos" ? "Todo el tiempo" : `Últimos ${range} días`}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Cards con resumen filtrado */}
-        <div className="summary-row">
-          <div className="summary-card">
-            <span className="summary-label">Leads en periodo</span>
-            <span className="summary-value">
-              {dashboardSummary.total}
-            </span>
-          </div>
-          <div className="summary-card summary-high">
-            <span className="summary-label">Alto</span>
-            <span className="summary-value">
-              {dashboardSummary.alto}
-            </span>
-          </div>
-          <div className="summary-card summary-medium">
-            <span className="summary-label">Medio</span>
-            <span className="summary-value">
-              {dashboardSummary.medio}
-            </span>
-          </div>
-          <div className="summary-card summary-low">
-            <span className="summary-label">Bajo</span>
-            <span className="summary-value">
-              {dashboardSummary.bajo}
-            </span>
-          </div>
-        </div>
-
-        {/* Evolutivo simple por interés */}
-        <div className="evolutive-card">
-          <div className="evolutive-header">
-            <h3 className="evolutive-title">
-              Evolutivo de leads por interés
-            </h3>
-            <span className="evolutive-subtitle">
-              Basado en los filtros seleccionados
-            </span>
-          </div>
-
-          <div className="evolutive-bars">
-            {[
-              {
-                label: "Alto",
-                value: dashboardSummary.alto,
-                className: "bar-high",
-              },
-              {
-                label: "Medio",
-                value: dashboardSummary.medio,
-                className: "bar-medium",
-              },
-              {
-                label: "Bajo",
-                value: dashboardSummary.bajo,
-                className: "bar-low",
-              },
-            ].map((item) => (
-              <div key={item.label} className="evolutive-bar-row">
-                <span className="evolutive-label">
-                  {item.label}
-                </span>
-                <div className="evolutive-bar-track">
-                  <div
-                    className={
-                      "evolutive-bar-fill " + item.className
-                    }
-                    style={{
-                      width: `${(item.value / maxCount) * 100}%`,
-                    }}
-                  />
-                </div>
-                <span className="evolutive-value">
-                  {item.value}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    );
   }
 
   return (
@@ -724,13 +828,12 @@ export default function App() {
           <nav className="sidebar-nav">
             <button
               className={
-                "nav-item" +
-                (activeSection === "dashboard" ? " active" : "")
+                "nav-item" + (activeSection === "leads" ? " active" : "")
               }
-              onClick={() => setActiveSection("dashboard")}
+              onClick={() => setActiveSection("leads")}
             >
-              <span className="nav-icon">📊</span>
-              <span>Dashboard</span>
+              <span className="nav-icon">👤</span>
+              <span>Leads</span>
             </button>
             <button
               className={
@@ -745,12 +848,12 @@ export default function App() {
             <button
               className={
                 "nav-item" +
-                (activeSection === "leads" ? " active" : "")
+                (activeSection === "dashboard" ? " active" : "")
               }
-              onClick={() => setActiveSection("leads")}
+              onClick={() => setActiveSection("dashboard")}
             >
-              <span className="nav-icon">👤</span>
-              <span>Leads</span>
+              <span className="nav-icon">📊</span>
+              <span>Dashboard</span>
             </button>
           </nav>
 
