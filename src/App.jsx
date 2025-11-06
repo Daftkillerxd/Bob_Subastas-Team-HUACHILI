@@ -1,92 +1,10 @@
 import { useMemo, useState } from "react";
 import "./App.css";
 
-const leadsData = [
-  {
-    id: 1,
-    name: "Juan Díaz",
-    lastMessageTime: "hace 2 m",
-    interest: "Alto",
-    phone: "+51 999 999 999",
-    message: "Hola, quisiera saber más sobre el auto Modelo X.",
-    tag: "Modelo X",
-    channel: "WhatsApp",
-    lastSeen: "hace 2 minutos",
-    daysAgo: 0,
-  },
-  {
-    id: 2,
-    name: "María Gómez",
-    lastMessageTime: "hace 18 m",
-    interest: "Medio",
-    phone: "+51 988 888 888",
-    message: "¿Tienen otros modelos en stock?",
-    tag: "Consulta general",
-    channel: "WhatsApp",
-    lastSeen: "hace 18 minutos",
-    daysAgo: 1,
-  },
-  {
-    id: 3,
-    name: "Carlos Rodríguez",
-    lastMessageTime: "hace 16 a",
-    interest: "Medio",
-    phone: "+51 977 777 777",
-    message: "Quisiera agendar una prueba de manejo.",
-    tag: "Test drive",
-    channel: "WhatsApp",
-    lastSeen: "hace 16 horas",
-    daysAgo: 2,
-  },
-  {
-    id: 4,
-    name: "Laura Fernández",
-    lastMessageTime: "hace 10 ma",
-    interest: "Medio",
-    phone: "+51 966 666 666",
-    message: "¿Cuánto es la cuota inicial?",
-    tag: "Financiamiento",
-    channel: "WhatsApp",
-    lastSeen: "hace 10 minutos",
-    daysAgo: 3,
-  },
-  {
-    id: 5,
-    name: "José Perez",
-    lastMessageTime: "hace 6 mai",
-    interest: "Medio",
-    phone: "+51 955 555 555",
-    message: "¿El modelo incluye garantía extendida?",
-    tag: "Garantía",
-    channel: "WhatsApp",
-    lastSeen: "hace 6 minutos",
-    daysAgo: 4,
-  },
-  {
-    id: 6,
-    name: "Ana Martínez",
-    lastMessageTime: "hace 23 mar",
-    interest: "Bajo",
-    phone: "+51 944 444 444",
-    message: "Solo estoy comparando precios por ahora.",
-    tag: "Bajo interés",
-    channel: "WhatsApp",
-    lastSeen: "hace 23 marzo",
-    daysAgo: 20,
-  },
-  {
-    id: 7,
-    name: "David Sánchez",
-    lastMessageTime: "30 de mar.",
-    interest: "Bajo",
-    phone: "+51 933 333 333",
-    message: "Tal vez más adelante me anime.",
-    tag: "Seguimiento lejano",
-    channel: "WhatsApp",
-    lastSeen: "30 de marzo",
-    daysAgo: 30,
-  },
-];
+// URL base de tu backend
+// 👉 En desarrollo usa localhost, en producción tu backend en Render
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
 const conversationsData = [
   {
