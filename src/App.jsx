@@ -9,200 +9,97 @@ const API_BASE_URL =
     ? "http://localhost:8000"
     : "https://bob-subastas-team-huachili-backend.onrender.com");
 
-// Conversaciones de ejemplo (luego las podrás traer del backend también)
-const conversationsData = [
-  {
-    id: "c1",
-    leadId: 1,
-    leadName: "Juan Díaz",
-    phone: "+51 999 999 999",
-    interest: "Alto",
-    lastMessageTime: "hace 2 m",
-    lastMessagePreview: "Hola, quisiera saber más sobre el auto Modelo X.",
-    status: "Abierta",
-    unread: 2,
-    channel: "WhatsApp",
-    messages: [
-      {
-        id: "m1",
-        from: "cliente",
-        time: "10:30",
-        text: "Hola, quisiera saber más sobre el auto Modelo X.",
-      },
-      {
-        id: "m2",
-        from: "bot",
-        time: "10:31",
-        text: "¡Hola Juan! Claro, ¿qué te gustaría saber del Modelo X?",
-      },
-      {
-        id: "m3",
-        from: "cliente",
-        time: "10:32",
-        text: "Quisiera saber el precio y si tienen en stock.",
-      },
-    ],
-  },
-  {
-    id: "c2",
-    leadId: 2,
-    leadName: "María Gómez",
-    phone: "+51 988 888 888",
-    interest: "Medio",
-    lastMessageTime: "hace 18 m",
-    lastMessagePreview: "¿Tienen otros modelos en stock?",
-    status: "Abierta",
-    unread: 0,
-    channel: "WhatsApp",
-    messages: [
-      {
-        id: "m4",
-        from: "cliente",
-        time: "09:10",
-        text: "¿Tienen otros modelos en stock?",
-      },
-      {
-        id: "m5",
-        from: "bot",
-        time: "09:11",
-        text: "Sí María, contamos con varios modelos disponibles. ¿Qué rango de precio buscas?",
-      },
-    ],
-  },
-  {
-    id: "c3",
-    leadId: 6,
-    leadName: "Ana Martínez",
-    phone: "+51 944 444 444",
-    interest: "Bajo",
-    lastMessageTime: "hace 23 mar",
-    lastMessagePreview: "Solo estoy comparando precios por ahora.",
-    status: "Cerrada",
-    unread: 0,
-    channel: "WhatsApp",
-    messages: [
-      {
-        id: "m6",
-        from: "cliente",
-        time: "ayer",
-        text: "Solo estoy comparando precios por ahora.",
-      },
-      {
-        id: "m7",
-        from: "bot",
-        time: "ayer",
-        text: "Perfecto Ana, si más adelante quieres avanzar, aquí estaré para ayudarte.",
-      },
-    ],
-  },
-];
-
+// Normalizar clase de interés → color
 function getInterestClass(interest) {
-  if (interest === "Alto") return "badge badge-high";
-  if (interest === "Medio") return "badge badge-medium";
-  return "badge badge-low";
+  const lvl = (interest || "").toLowerCase();
+  if (lvl === "alto") return "badge badge-high"; // verde
+  if (lvl === "medio") return "badge badge-medium"; // amarillo
+  return "badge badge-low"; // rojo (bajo o cualquier otro)
 }
 
-const INTEREST_ORDER = { Alto: 0, Medio: 1, Bajo: 2 };
+const INTEREST_ORDER = { alto: 0, medio: 1, bajo: 2 };
 
 export default function App() {
   const [activeSection, setActiveSection] = useState("leads"); // leads | conversaciones | dashboard
 
-  // --- LEADS traídos del backend ---
-  const [leadsData, setLeadsData] = useState([]);
+  // ------------------- LEADS -------------------
+  const [leads, setLeads] = useState([]);
   const [selectedLead, setSelectedLead] = useState(null);
-  const [loadingLeads, setLoadingLeads] = useState(true);
-  const [errorLeads, setErrorLeads] = useState(null);
-
   const [search, setSearch] = useState("");
   const [interestFilter, setInterestFilter] = useState("Todos");
 
-  // Dashboard filtros
-  const [dashboardInterestFilter, setDashboardInterestFilter] =
-    useState("Todos");
-  const [dashboardRange, setDashboardRange] = useState("30"); // 7 | 30 | 90 | "Todos"
-
-  // Conversaciones
-  const [selectedConversation, setSelectedConversation] = useState(
-    conversationsData[0]
-  );
-  const [conversationFilter, setConversationFilter] = useState("Abiertas");
-  const [searchConversation, setSearchConversation] = useState("");
-
-  // --- Cargar leads desde el backend al montar la app ---
   useEffect(() => {
-    async function fetchLeads() {
+    async function loadLeads() {
       try {
-        setLoadingLeads(true);
-        setErrorLeads(null);
-
-        const res = await fetch(`${API_BASE_URL}/frontend/leads?limit=200`);
-        if (!res.ok) {
-          throw new Error(
-            `Error al cargar leads: ${res.status} ${res.statusText}`
-          );
-        }
-
+        const res = await fetch(`${API_BASE_URL}/frontend/leads?limit=100`);
         const data = await res.json();
-        setLeadsData(data || []);
-        setSelectedLead((prev) => prev || (data && data[0]) || null);
+        setLeads(data || []);
+        setSelectedLead((data && data[0]) || null);
       } catch (err) {
-        console.error("Error fetching leads:", err);
-        setErrorLeads(err.message);
-      } finally {
-        setLoadingLeads(false);
+        console.error("Error cargando leads", err);
       }
     }
-
-    fetchLeads();
+    loadLeads();
   }, []);
 
   // resumen global de leads
   const summary = useMemo(() => {
-    return leadsData.reduce(
+    return leads.reduce(
       (acc, lead) => {
         acc.total++;
-        acc[lead.interest.toLowerCase()]++;
+        const lvl = (lead.interest || "").toLowerCase();
+        if (lvl === "alto") acc.alto++;
+        else if (lvl === "medio") acc.medio++;
+        else acc.bajo++;
         return acc;
       },
       { total: 0, alto: 0, medio: 0, bajo: 0 }
     );
-  }, [leadsData]);
+  }, [leads]);
 
   // leads para sección Leads
   const filteredLeads = useMemo(() => {
-    return leadsData
+    return leads
       .filter((lead) => {
         const matchesSearch =
-          lead.name.toLowerCase().includes(search.toLowerCase()) ||
-          lead.phone.toLowerCase().includes(search.toLowerCase());
+          lead.name?.toLowerCase().includes(search.toLowerCase()) ||
+          lead.phone?.toLowerCase().includes(search.toLowerCase());
         const matchesInterest =
           interestFilter === "Todos" || lead.interest === interestFilter;
         return matchesSearch && matchesInterest;
       })
       .sort(
-        (a, b) => INTEREST_ORDER[a.interest] - INTEREST_ORDER[b.interest]
+        (a, b) =>
+          INTEREST_ORDER[(a.interest || "").toLowerCase()] -
+          INTEREST_ORDER[(b.interest || "").toLowerCase()]
       );
-  }, [leadsData, search, interestFilter]);
+  }, [leads, search, interestFilter]);
 
   // leads filtrados para Dashboard
+  const [dashboardInterestFilter, setDashboardInterestFilter] =
+    useState("Todos");
+  const [dashboardRange, setDashboardRange] = useState("30"); // 7 | 30 | 90 | "Todos"
+
   const dashboardLeads = useMemo(() => {
-    return leadsData.filter((lead) => {
+    return leads.filter((lead) => {
       const byInterest =
         dashboardInterestFilter === "Todos" ||
         lead.interest === dashboardInterestFilter;
       const byRange =
         dashboardRange === "Todos" ||
-        lead.daysAgo <= Number(dashboardRange);
+        (lead.daysAgo ?? 0) <= Number(dashboardRange);
       return byInterest && byRange;
     });
-  }, [leadsData, dashboardInterestFilter, dashboardRange]);
+  }, [leads, dashboardInterestFilter, dashboardRange]);
 
   const dashboardSummary = useMemo(() => {
     return dashboardLeads.reduce(
       (acc, lead) => {
         acc.total++;
-        acc[lead.interest.toLowerCase()]++;
+        const lvl = (lead.interest || "").toLowerCase();
+        if (lvl === "alto") acc.alto++;
+        else if (lvl === "medio") acc.medio++;
+        else acc.bajo++;
         return acc;
       },
       { total: 0, alto: 0, medio: 0, bajo: 0 }
@@ -232,7 +129,7 @@ export default function App() {
       "31+": 0,
     };
 
-    leadsData.forEach((lead) => {
+    leads.forEach((lead) => {
       if (
         dashboardInterestFilter !== "Todos" &&
         lead.interest !== dashboardInterestFilter
@@ -240,14 +137,16 @@ export default function App() {
         return;
       }
 
-      if (lead.daysAgo <= 7) buckets["0-7"]++;
-      else if (lead.daysAgo <= 14) buckets["8-14"]++;
-      else if (lead.daysAgo <= 30) buckets["15-30"]++;
+      const days = lead.daysAgo ?? 0;
+
+      if (days <= 7) buckets["0-7"]++;
+      else if (days <= 14) buckets["8-14"]++;
+      else if (days <= 30) buckets["15-30"]++;
       else buckets["31+"]++;
     });
 
     return buckets;
-  }, [leadsData, dashboardInterestFilter]);
+  }, [leads, dashboardInterestFilter]);
 
   const maxBucket = Math.max(
     timelineBuckets["0-7"],
@@ -256,26 +155,71 @@ export default function App() {
     timelineBuckets["31+"]
   );
 
-  // conversaciones filtradas
+  // ------------------- CONVERSACIONES -------------------
+  const [conversations, setConversations] = useState([]);
+  const [selectedConversation, setSelectedConversation] = useState(null);
+  const [conversationFilter, setConversationFilter] = useState("Abiertas");
+  const [searchConversation, setSearchConversation] = useState("");
+
+  useEffect(() => {
+    async function loadConversations() {
+      try {
+        const res = await fetch(
+          `${API_BASE_URL}/frontend/conversaciones?limit=50`
+        );
+        const data = await res.json();
+        setConversations(data || []);
+        if (data && data[0]) {
+          setSelectedConversation(data[0]);
+          // cargar mensajes de la primera conversación
+          fetchMessagesFor(data[0].id);
+        }
+      } catch (err) {
+        console.error("Error cargando conversaciones", err);
+      }
+    }
+    loadConversations();
+  }, []);
+
+  async function fetchMessagesFor(waId) {
+    try {
+      const res = await fetch(
+        `${API_BASE_URL}/frontend/conversaciones/${waId}/mensajes?limit=200`
+      );
+      const msgs = await res.json();
+      setConversations((prev) =>
+        prev.map((c) => (c.id === waId ? { ...c, messages: msgs } : c))
+      );
+      setSelectedConversation((prev) =>
+        prev && prev.id === waId ? { ...prev, messages: msgs } : prev
+      );
+    } catch (err) {
+      console.error("Error cargando mensajes", err);
+    }
+  }
+
   const filteredConversations = useMemo(() => {
-    return conversationsData.filter((conv) => {
+    return conversations.filter((conv) => {
       const matchesSearch =
         conv.leadName
-          .toLowerCase()
+          ?.toLowerCase()
           .includes(searchConversation.toLowerCase()) ||
-        conv.phone.toLowerCase().includes(searchConversation.toLowerCase());
+        conv.phone
+          ?.toLowerCase()
+          .includes(searchConversation.toLowerCase());
       const matchesStatus =
-        conversationFilter === "Todas" ||
-        conv.status === conversationFilter;
+        conversationFilter === "Todas" || conv.status === conversationFilter;
       return matchesSearch && matchesStatus;
     });
-  }, [searchConversation, conversationFilter]);
+  }, [conversations, searchConversation, conversationFilter]);
 
-  // --- contenido principal según sección ---
+  const selectedMessages = selectedConversation?.messages || [];
+
+  // ------------------- CONTENIDO PRINCIPAL -------------------
   let mainContent = null;
 
+  // ========== Conversaciones ==========
   if (activeSection === "conversaciones") {
-    // INBOX DE CONVERSACIONES
     mainContent = (
       <div className="conversations-panel">
         <section className="conversations-list-section">
@@ -318,7 +262,12 @@ export default function App() {
                   "conversation-row" +
                   (selectedConversation?.id === conv.id ? " selected" : "")
                 }
-                onClick={() => setSelectedConversation(conv)}
+                onClick={() => {
+                  setSelectedConversation(conv);
+                  if (!conv.messages) {
+                    fetchMessagesFor(conv.id);
+                  }
+                }}
               >
                 <div className="conversation-main">
                   <div className="conversation-name-row">
@@ -326,7 +275,7 @@ export default function App() {
                       {conv.leadName}
                     </span>
                     <span className={getInterestClass(conv.interest)}>
-                      {conv.interest}
+                      {(conv.interest || "").toUpperCase()}
                     </span>
                   </div>
                   <p className="conversation-preview">
@@ -359,7 +308,7 @@ export default function App() {
             <div className="conversation-card">
               <div className="lead-card-header">
                 <div className="lead-avatar">
-                  {selectedConversation.leadName.charAt(0)}
+                  {selectedConversation.leadName?.charAt(0) || "?"}
                 </div>
                 <div className="lead-card-info">
                   <div className="lead-card-name-row">
@@ -371,7 +320,7 @@ export default function App() {
                         selectedConversation.interest
                       )}
                     >
-                      {selectedConversation.interest}
+                      {(selectedConversation.interest || "").toUpperCase()}
                     </span>
                     <span className="conversation-status-pill">
                       {selectedConversation.status}
@@ -387,7 +336,7 @@ export default function App() {
               </div>
 
               <div className="conversation-messages">
-                {selectedConversation.messages.map((m) => (
+                {selectedMessages.map((m) => (
                   <div
                     key={m.id}
                     className={
@@ -405,6 +354,11 @@ export default function App() {
                     </div>
                   </div>
                 ))}
+                {selectedMessages.length === 0 && (
+                  <div className="empty-state">
+                    No hay mensajes para esta conversación.
+                  </div>
+                )}
               </div>
 
               <button className="btn-outline full-width">
@@ -419,8 +373,10 @@ export default function App() {
         </section>
       </div>
     );
-  } else if (activeSection === "dashboard") {
-    // DASHBOARD TOP
+  }
+
+  // ========== Dashboard ==========
+  else if (activeSection === "dashboard") {
     mainContent = (
       <section className="dashboard-panel">
         <div className="leads-header">
@@ -435,7 +391,6 @@ export default function App() {
           </div>
         </div>
 
-        {/* Filtros dashboard */}
         <div className="dashboard-filters">
           <div className="chip-filter-group">
             {["Todos", "Alto", "Medio", "Bajo"].map((lvl) => (
@@ -468,7 +423,6 @@ export default function App() {
           </div>
         </div>
 
-        {/* KPIs */}
         <div className="dashboard-kpi-row">
           <div className="summary-card kpi-main">
             <span className="summary-label">Leads en periodo</span>
@@ -513,7 +467,6 @@ export default function App() {
           </div>
         </div>
 
-        {/* Gráficos: barras por interés + timeline */}
         <div className="dashboard-grid">
           <div className="evolutive-card">
             <div className="evolutive-header">
@@ -590,7 +543,11 @@ export default function App() {
                         height:
                           maxBucket === 0
                             ? 0
-                            : `${(timelineBuckets[bucket.key] / maxBucket) * 100}%`,
+                            : `${
+                                (timelineBuckets[bucket.key] /
+                                  maxBucket) *
+                                100
+                              }%`,
                       }}
                     />
                   </div>
@@ -607,8 +564,10 @@ export default function App() {
         </div>
       </section>
     );
-  } else {
-    // PANEL DE LEADS (por defecto)
+  }
+
+  // ========== Leads (por defecto) ==========
+  else {
     mainContent = (
       <>
         <section className="leads-panel">
@@ -675,53 +634,32 @@ export default function App() {
                 </tr>
               </thead>
               <tbody>
-                {loadingLeads && (
+                {filteredLeads.map((lead) => (
+                  <tr
+                    key={lead.id}
+                    className={
+                      selectedLead?.id === lead.id
+                        ? "lead-row selected"
+                        : "lead-row"
+                    }
+                    onClick={() => setSelectedLead(lead)}
+                  >
+                    <td className="lead-name">{lead.name}</td>
+                    <td className="lead-time">{lead.lastMessageTime}</td>
+                    <td>
+                      <span className={getInterestClass(lead.interest)}>
+                        {(lead.interest || "").toUpperCase()}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+                {filteredLeads.length === 0 && (
                   <tr>
                     <td colSpan={3} className="empty-state">
-                      Cargando leads...
+                      No hay leads para este filtro.
                     </td>
                   </tr>
                 )}
-
-                {errorLeads && !loadingLeads && (
-                  <tr>
-                    <td colSpan={3} className="empty-state">
-                      Error al cargar leads: {errorLeads}
-                    </td>
-                  </tr>
-                )}
-
-                {!loadingLeads &&
-                  !errorLeads &&
-                  filteredLeads.map((lead) => (
-                    <tr
-                      key={lead.id}
-                      className={
-                        selectedLead?.id === lead.id
-                          ? "lead-row selected"
-                          : "lead-row"
-                      }
-                      onClick={() => setSelectedLead(lead)}
-                    >
-                      <td className="lead-name">{lead.name}</td>
-                      <td className="lead-time">{lead.lastMessageTime}</td>
-                      <td>
-                        <span className={getInterestClass(lead.interest)}>
-                          {lead.interest}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-
-                {!loadingLeads &&
-                  !errorLeads &&
-                  filteredLeads.length === 0 && (
-                    <tr>
-                      <td colSpan={3} className="empty-state">
-                        No hay leads para este filtro.
-                      </td>
-                    </tr>
-                  )}
               </tbody>
             </table>
           </div>
@@ -734,7 +672,7 @@ export default function App() {
             <div className="lead-card">
               <div className="lead-card-header">
                 <div className="lead-avatar">
-                  {selectedLead.name.charAt(0)}
+                  {selectedLead.name?.charAt(0) || "?"}
                 </div>
                 <div className="lead-card-info">
                   <div className="lead-card-name-row">
@@ -744,7 +682,7 @@ export default function App() {
                     <span
                       className={getInterestClass(selectedLead.interest)}
                     >
-                      {selectedLead.interest}
+                      {(selectedLead.interest || "").toUpperCase()}
                     </span>
                   </div>
                   <span className="lead-card-phone">
@@ -790,6 +728,7 @@ export default function App() {
     );
   }
 
+  // ------------------- SHELL -------------------
   return (
     <div className="app">
       <div className="layout">
