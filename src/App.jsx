@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 
 // URL base de tu backend
@@ -9,6 +9,7 @@ const API_BASE_URL =
     ? "http://localhost:8000"
     : "https://bob-subastas-team-huachili-backend.onrender.com");
 
+// Conversaciones de ejemplo (luego las podrás traer del backend también)
 const conversationsData = [
   {
     id: "c1",
@@ -107,8 +108,12 @@ const INTEREST_ORDER = { Alto: 0, Medio: 1, Bajo: 2 };
 export default function App() {
   const [activeSection, setActiveSection] = useState("leads"); // leads | conversaciones | dashboard
 
-  // Leads panel
-  const [selectedLead, setSelectedLead] = useState(leadsData[0]);
+  // --- LEADS traídos del backend ---
+  const [leadsData, setLeadsData] = useState([]);
+  const [selectedLead, setSelectedLead] = useState(null);
+  const [loadingLeads, setLoadingLeads] = useState(true);
+  const [errorLeads, setErrorLeads] = useState(null);
+
   const [search, setSearch] = useState("");
   const [interestFilter, setInterestFilter] = useState("Todos");
 
@@ -124,6 +129,34 @@ export default function App() {
   const [conversationFilter, setConversationFilter] = useState("Abiertas");
   const [searchConversation, setSearchConversation] = useState("");
 
+  // --- Cargar leads desde el backend al montar la app ---
+  useEffect(() => {
+    async function fetchLeads() {
+      try {
+        setLoadingLeads(true);
+        setErrorLeads(null);
+
+        const res = await fetch(`${API_BASE_URL}/frontend/leads?limit=200`);
+        if (!res.ok) {
+          throw new Error(
+            `Error al cargar leads: ${res.status} ${res.statusText}`
+          );
+        }
+
+        const data = await res.json();
+        setLeadsData(data || []);
+        setSelectedLead((prev) => prev || (data && data[0]) || null);
+      } catch (err) {
+        console.error("Error fetching leads:", err);
+        setErrorLeads(err.message);
+      } finally {
+        setLoadingLeads(false);
+      }
+    }
+
+    fetchLeads();
+  }, []);
+
   // resumen global de leads
   const summary = useMemo(() => {
     return leadsData.reduce(
@@ -134,7 +167,7 @@ export default function App() {
       },
       { total: 0, alto: 0, medio: 0, bajo: 0 }
     );
-  }, []);
+  }, [leadsData]);
 
   // leads para sección Leads
   const filteredLeads = useMemo(() => {
@@ -150,7 +183,7 @@ export default function App() {
       .sort(
         (a, b) => INTEREST_ORDER[a.interest] - INTEREST_ORDER[b.interest]
       );
-  }, [search, interestFilter]);
+  }, [leadsData, search, interestFilter]);
 
   // leads filtrados para Dashboard
   const dashboardLeads = useMemo(() => {
@@ -163,7 +196,7 @@ export default function App() {
         lead.daysAgo <= Number(dashboardRange);
       return byInterest && byRange;
     });
-  }, [dashboardInterestFilter, dashboardRange]);
+  }, [leadsData, dashboardInterestFilter, dashboardRange]);
 
   const dashboardSummary = useMemo(() => {
     return dashboardLeads.reduce(
@@ -214,7 +247,7 @@ export default function App() {
     });
 
     return buckets;
-  }, [dashboardInterestFilter]);
+  }, [leadsData, dashboardInterestFilter]);
 
   const maxBucket = Math.max(
     timelineBuckets["0-7"],
@@ -642,32 +675,53 @@ export default function App() {
                 </tr>
               </thead>
               <tbody>
-                {filteredLeads.map((lead) => (
-                  <tr
-                    key={lead.id}
-                    className={
-                      selectedLead?.id === lead.id
-                        ? "lead-row selected"
-                        : "lead-row"
-                    }
-                    onClick={() => setSelectedLead(lead)}
-                  >
-                    <td className="lead-name">{lead.name}</td>
-                    <td className="lead-time">{lead.lastMessageTime}</td>
-                    <td>
-                      <span className={getInterestClass(lead.interest)}>
-                        {lead.interest}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-                {filteredLeads.length === 0 && (
+                {loadingLeads && (
                   <tr>
                     <td colSpan={3} className="empty-state">
-                      No hay leads para este filtro.
+                      Cargando leads...
                     </td>
                   </tr>
                 )}
+
+                {errorLeads && !loadingLeads && (
+                  <tr>
+                    <td colSpan={3} className="empty-state">
+                      Error al cargar leads: {errorLeads}
+                    </td>
+                  </tr>
+                )}
+
+                {!loadingLeads &&
+                  !errorLeads &&
+                  filteredLeads.map((lead) => (
+                    <tr
+                      key={lead.id}
+                      className={
+                        selectedLead?.id === lead.id
+                          ? "lead-row selected"
+                          : "lead-row"
+                      }
+                      onClick={() => setSelectedLead(lead)}
+                    >
+                      <td className="lead-name">{lead.name}</td>
+                      <td className="lead-time">{lead.lastMessageTime}</td>
+                      <td>
+                        <span className={getInterestClass(lead.interest)}>
+                          {lead.interest}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+
+                {!loadingLeads &&
+                  !errorLeads &&
+                  filteredLeads.length === 0 && (
+                    <tr>
+                      <td colSpan={3} className="empty-state">
+                        No hay leads para este filtro.
+                      </td>
+                    </tr>
+                  )}
               </tbody>
             </table>
           </div>
@@ -792,3 +846,4 @@ export default function App() {
     </div>
   );
 }
+
