@@ -4,7 +4,10 @@ import "./App.css";
 // URL base de tu backend
 // 👉 En desarrollo usa localhost, en producción tu backend en Render
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+  import.meta.env.VITE_API_BASE_URL ||
+  (window.location.hostname === "localhost"
+    ? "http://localhost:8000"
+    : "https://bob-subastas-team-huachili-backend.onrender.com");
 
 const conversationsData = [
   {
